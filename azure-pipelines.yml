@@ -39,19 +39,19 @@ stages:
 
 
 # Optional future stage:
-#   - stage: Apply
-#     displayName: "Terraform Apply"
-#     dependsOn: ValidateAndPlan
-#     condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
-#     jobs:
-#       - job: Apply
-#         displayName: "Terraform Apply"
-#         pool:
-#           name: Default
-#           demands: agent.name -equals Udeeks-MacBook-Air-2
-#         steps:
-#           - checkout: self
-#           - script: |
-#               chmod +x $(SCRIPTS)/apply.sh
-#               $(SCRIPTS)/apply.sh $(ENV)
-#             displayName: "Run Terraform Apply"
+  - stage: Apply
+    displayName: "Terraform Apply"
+    dependsOn: ValidateAndPlan
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+    jobs:
+      - job: Apply
+        displayName: "Terraform Apply"
+        pool:
+          name: Default
+          demands: agent.name -equals Udeeks-MacBook-Air-2
+        steps:
+          - checkout: self
+          - script: |
+              chmod +x $(SCRIPTS)/apply.sh
+              $(SCRIPTS)/apply.sh $(ENV)
+            displayName: "Run Terraform Apply"
