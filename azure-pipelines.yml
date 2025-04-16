@@ -37,7 +37,8 @@ stages:
       - job: Plan
         displayName: Terraform Plan
         pool:
-          vmImage: 'ubuntu-latest'
+          name: Default
+          demands: agent.name -equals Udeeks-MacBook-Air-2
         steps:
           - checkout: self
           - script: |
