@@ -14,7 +14,7 @@ fi
 
 #cd global/
 echo "Initializing Terraform for $ENV..."
-terraform init -backend-config=./environments/$ENV/backend.tf
+terraform init -backend-config=./environments/$ENV/backend.tfvars
 
 #echo "Applying Terraform with $ENV variables..."
 #terraform apply -var-file="./environments/$ENV/terraform.tfvars" -lock=false

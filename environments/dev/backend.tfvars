@@ -1,6 +1,4 @@
-prefix              = "dev"
-location            = "centralindia"
-resource_group_name = "dev-governance-rg"
-subscription_id     = "7e43e805-0130-426e-935b-5380e24fa05b"
+resource_group_name  = "dev-governance-rg"
 storage_account_name = "devtfstateudk"
 container_name       = "dev-tfstate-container"
+key                  = "dev.terraform.tfstate"
