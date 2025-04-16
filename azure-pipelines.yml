@@ -49,7 +49,11 @@ stages:
         displayName: "Terraform Apply"
         steps:
           - checkout: self
+
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: 'tfplan'
+              downloadPath: '$(Build.SourcesDirectory)/tfplan'
           - script: |
-              chmod +x $(SCRIPTS)/apply.sh
-              $(SCRIPTS)/apply.sh $(ENV)
-            displayName: "Run Terraform Apply"
+              terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan/tfplan"
+            displayName: Terraform Apply (Exact plan)
