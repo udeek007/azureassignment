@@ -55,5 +55,5 @@ stages:
               artifactName: 'tfplan'
               downloadPath: '$(Build.SourcesDirectory)/tfplan-download'
           - script: |
-              terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan"
+              terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan/tfplan"
             displayName: Terraform Apply (Exact plan)
