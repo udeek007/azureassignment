@@ -39,6 +39,19 @@ stages:
       displayName: Validate and Plan
       steps:
         - checkout: self
+
+        - script: |
+            chmod +x $(SCRIPTS)/init.sh
+            chmod +x $(SCRIPTS)/plan.sh
+            $(SCRIPTS)/init.sh $(ENV)
+            terraform validate
+          displayName: Run Init, and Validate
+
+        - script: |
+            terraform import -var-file="environments/$(ENV)/terraform.tfvars" module.policy.azurerm_resource_group_policy_assignment.tag_assignment "..."
+          displayName: Terraform Import (Pre-existing resources)
+          continueOnError: true
+
         - script: |
             chmod +x $(SCRIPTS)/init.sh
             chmod +x $(SCRIPTS)/plan.sh
@@ -46,7 +59,8 @@ stages:
             terraform validate
             terraform import -var-file="environments/$(ENV)/terraform.tfvars" module.policy.azurerm_resource_group_policy_assignment.tag_assignment "/subscriptions/7e43e805-0130-426e-935b-5380e24fa05b/resourceGroups/dev-governance-rg/providers/Microsoft.Authorization/policyAssignments/dev-governance-assignment" || true
             $(SCRIPTS)/plan.sh $(ENV)
-          displayName: Run Init, Validate, and Plan
+          displayName: Run terraform Plan
+
         - task: PublishBuildArtifacts@1
           inputs:
             PathtoPublish: 'tfplan'
@@ -61,31 +75,38 @@ stages:
     dependsOn: ValidateAndPlan
     condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
     jobs:
-      - job: Apply
+      - deployment: ApplyDeployment
         displayName: "Terraform Apply"
-        steps:
-          - checkout: self
+        environment: production   # <--- This is the key for manual approval
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
 
-          - task: DownloadBuildArtifacts@0
-            inputs:
-              artifactName: 'tfplan'
-              downloadPath: '$(Build.SourcesDirectory)/tfplan-download'
-          - script: |
-              terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
-              terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan/tfplan"
-            displayName: Terraform Apply (Exact plan)
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    artifactName: 'tfplan'
+                    downloadPath: '$(Build.SourcesDirectory)/tfplan-download'
+
+                - script: |
+                    terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
+                    terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan/tfplan"
+                  displayName: Terraform Apply (Exact plan)
   
   - stage: Destroy
     displayName: 'Terraform Destroy'
     dependsOn: Apply
     condition: and(succeeded(), eq('${{ parameters.runDestroy }}', true))
     jobs:
-    - job: Destroy
-      displayName: 'Terraform Destroy Job'
-      steps:
-        - checkout: self
-        - script: |
-            chmod +x $(SCRIPTS)/destroy.sh
-            terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
-            $(SCRIPTS)/destroy.sh $(ENV)
-          displayName: 'Terraform Destroy'
+    - deployment: DestroyJob
+      environment: destroy-gate  # Setup with manual approval in Environments
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - checkout: self
+              - script: |
+                  terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
+                  $(SCRIPTS)/destroy.sh $(ENV)
+                displayName: 'Terraform Destroy'
