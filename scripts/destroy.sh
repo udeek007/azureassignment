@@ -11,12 +11,12 @@ if [ -z "$ENV" ]; then
 fi
 
 echo "WARNING: This will destroy resources in $ENV!"
-read -p "Are you sure? (yes/no): " CONFIRM
+# read -p "Are you sure? (yes/no): " CONFIRM
 
-if [ "$CONFIRM" != "yes" ]; then
-  echo "Destroy aborted."
-  exit 1
-fi
+# if [ "$CONFIRM" != "yes" ]; then
+#   echo "Destroy aborted."
+#   exit 1
+# fi
 
 echo "Destroying Terraform resources for environment: $ENV"
 
