@@ -55,5 +55,6 @@ stages:
               artifactName: 'tfplan'
               downloadPath: '$(Build.SourcesDirectory)/tfplan-download'
           - script: |
+              terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
               terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan/tfplan"
             displayName: Terraform Apply (Exact plan)
