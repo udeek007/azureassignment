@@ -44,6 +44,7 @@ stages:
             chmod +x $(SCRIPTS)/plan.sh
             $(SCRIPTS)/init.sh $(ENV)
             terraform validate
+            terraform import -var-file="environments/$(ENV)/terraform.tfvars" module.policy.azurerm_resource_group_policy_assignment.tag_assignment "/subscriptions/7e43e805-0130-426e-935b-5380e24fa05b/resourceGroups/dev-governance-rg/providers/Microsoft.Authorization/policyAssignments/dev-governance-assignment" || true
             $(SCRIPTS)/plan.sh $(ENV)
           displayName: Run Init, Validate, and Plan
         - task: PublishBuildArtifacts@1
