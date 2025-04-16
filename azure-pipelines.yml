@@ -97,7 +97,7 @@ stages:
   
   - stage: Destroy
     displayName: 'Terraform Destroy'
-    dependsOn: Apply
+    dependsOn: ValidateAndPlan
     condition: and(succeeded(), eq('${{ parameters.runDestroy }}', true))
     jobs:
     - deployment: DestroyJob
