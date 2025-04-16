@@ -16,45 +16,27 @@ stages:
   - stage: ValidateAndPlan
     displayName: "Terraform Validate & Plan"
     jobs:
-      - job: Validate
-        displayName: "Terraform Validate"
-        pool:
-          name: Default
-          demands: agent.name -equals Udeeks-MacBook-Air-2
-        steps:
-          - checkout: self
+    - job: ValidateAndPlan
+      displayName: Validate and Plan
+      pool:
+        name: Default
+        demands: agent.name -equals Udeeks-MacBook-Air-2
+      steps:
+        - checkout: self
+        - script: |
+            chmod +x $(SCRIPTS)/init.sh
+            chmod +x $(SCRIPTS)/plan.sh
+            $(SCRIPTS)/init.sh $(ENV)
+            terraform validate
+            $(SCRIPTS)/plan.sh $(ENV) > plan-output.txt
+          displayName: Run Init, Validate, and Plan
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: 'plan-output.txt'
+            ArtifactName: 'tfplan'
+            publishLocation: 'Container'
 
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
 
-          - script: |
-              echo "Running terraform init & validate"
-              chmod +x $(SCRIPTS)/init.sh
-              chmod +x $(SCRIPTS)/plan.sh
-              $(SCRIPTS)/init.sh $(ENV)
-              terraform validate
-            displayName: "Terraform Init & Validate"
-
-      - job: Plan
-        displayName: "Terraform Plan"
-        pool:
-          name: Default
-          demands: agent.name -equals Udeeks-MacBook-Air-2
-        steps:
-          - checkout: self
-
-          - script: |
-              echo "Running terraform plan"
-              chmod +x $(SCRIPTS)/plan.sh
-              $(SCRIPTS)/plan.sh $(ENV) > plan-output.txt
-            displayName: "Terraform Plan"
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: 'plan-output.txt'
-              ArtifactName: 'tfplan'
-              publishLocation: 'Container'
 
 # Optional future stage:
 #   - stage: Apply
