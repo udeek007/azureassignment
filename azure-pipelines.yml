@@ -33,7 +33,7 @@ stages:
           displayName: Run Init, Validate, and Plan
         - task: PublishBuildArtifacts@1
           inputs:
-            PathtoPublish: 'plan-output.txt'
+            PathtoPublish: 'tfplan'
             ArtifactName: 'tfplan'
             publishLocation: 'Container'
 
@@ -53,7 +53,7 @@ stages:
           - task: DownloadBuildArtifacts@0
             inputs:
               artifactName: 'tfplan'
-              downloadPath: '$(Build.SourcesDirectory)/tfplan'
+              downloadPath: '$(Build.SourcesDirectory)/tfplan-download'
           - script: |
-              terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan/tfplan"
+              terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan"
             displayName: Terraform Apply (Exact plan)
