@@ -1,0 +1,53 @@
+trigger:
+  branches:
+    include:
+      - "*"
+
+pr:
+  branches:
+    include:
+      - "*"
+
+variables:
+  TF_ROOT: 'terraform'
+  SCRIPTS: 'scripts'
+  ENV: 'dev'
+
+stages:
+  - stage: ValidateAndPlan
+    displayName: Validate & Plan
+    jobs:
+      - job: Validate
+        displayName: Terraform Validate
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+
+          - script: |
+              chmod +x $(SCRIPTS)/init.sh
+              chmod +x $(SCRIPTS)/plan.sh
+              $(SCRIPTS)/init.sh $(ENV)
+              terraform validate
+            displayName: Run Terraform Validate
+
+      - job: Plan
+        displayName: Terraform Plan
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - script: |
+              chmod +x $(SCRIPTS)/plan.sh
+              $(SCRIPTS)/plan.sh $(ENV) > plan-output.txt
+            displayName: Run Terraform Plan
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'plan-output.txt'
+              ArtifactName: 'tfplan'
+              publishLocation: 'Container'
+
