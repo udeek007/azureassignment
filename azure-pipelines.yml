@@ -3,6 +3,10 @@ trigger:
     include:
       - "*"
 
+pool:
+  name: Default
+  demands: agent.name -equals Udeeks-MacBook-Air-2
+
 pr:
   branches:
     include:
@@ -18,9 +22,6 @@ stages:
     jobs:
     - job: ValidateAndPlan
       displayName: Validate and Plan
-      pool:
-        name: Default
-        demands: agent.name -equals Udeeks-MacBook-Air-2
       steps:
         - checkout: self
         - script: |
@@ -46,9 +47,6 @@ stages:
     jobs:
       - job: Apply
         displayName: "Terraform Apply"
-        pool:
-          name: Default
-          demands: agent.name -equals Udeeks-MacBook-Air-2
         steps:
           - checkout: self
           - script: |
