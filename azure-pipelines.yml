@@ -9,43 +9,46 @@ pr:
       - "*"
 
 variables:
-  TF_ROOT: 'terraform'
-  SCRIPTS: 'scripts'
+  SCRIPTS: 'scripts'   # your folder that has init.sh, plan.sh, apply.sh
   ENV: 'dev'
 
 stages:
   - stage: ValidateAndPlan
-    displayName: Validate & Plan
+    displayName: "Terraform Validate & Plan"
     jobs:
       - job: Validate
-        displayName: Terraform Validate
+        displayName: "Terraform Validate"
         pool:
           name: Default
           demands: agent.name -equals Udeeks-MacBook-Air-2
         steps:
           - checkout: self
+
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '3.x'
 
           - script: |
+              echo "Running terraform init & validate"
               chmod +x $(SCRIPTS)/init.sh
               chmod +x $(SCRIPTS)/plan.sh
               $(SCRIPTS)/init.sh $(ENV)
               terraform validate
-            displayName: Run Terraform Validate
+            displayName: "Terraform Init & Validate"
 
       - job: Plan
-        displayName: Terraform Plan
+        displayName: "Terraform Plan"
         pool:
           name: Default
           demands: agent.name -equals Udeeks-MacBook-Air-2
         steps:
           - checkout: self
+
           - script: |
+              echo "Running terraform plan"
               chmod +x $(SCRIPTS)/plan.sh
               $(SCRIPTS)/plan.sh $(ENV) > plan-output.txt
-            displayName: Run Terraform Plan
+            displayName: "Terraform Plan"
 
           - task: PublishBuildArtifacts@1
             inputs:
@@ -53,3 +56,20 @@ stages:
               ArtifactName: 'tfplan'
               publishLocation: 'Container'
 
+# Optional future stage:
+#   - stage: Apply
+#     displayName: "Terraform Apply"
+#     dependsOn: ValidateAndPlan
+#     condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+#     jobs:
+#       - job: Apply
+#         displayName: "Terraform Apply"
+#         pool:
+#           name: Default
+#           demands: agent.name -equals Udeeks-MacBook-Air-2
+#         steps:
+#           - checkout: self
+#           - script: |
+#               chmod +x $(SCRIPTS)/apply.sh
+#               $(SCRIPTS)/apply.sh $(ENV)
+#             displayName: "Run Terraform Apply"
