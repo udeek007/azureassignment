@@ -1,7 +1,17 @@
+parameters:
+  - name: env
+    displayName: 'Select Environment'
+    type: string
+    default: 'dev'
+    values:
+      - dev
+      - staging
+      - prod
+
 trigger:
   branches:
     include:
-      - "*"
+      - "dev"
 
 pool:
   name: Default
@@ -10,11 +20,11 @@ pool:
 pr:
   branches:
     include:
-      - "*"
+      - "main"
 
 variables:
   SCRIPTS: 'scripts'   # your folder that has init.sh, plan.sh, apply.sh
-  ENV: 'dev'
+  ENV: ${{ parameters.env }}
 
 stages:
   - stage: ValidateAndPlan
