@@ -8,6 +8,11 @@ parameters:
       - staging
       - prod
 
+  - name: runDestroy
+    displayName: 'Run Destroy?'
+    type: boolean
+    default: false
+
 trigger:
   branches:
     include:
@@ -68,3 +73,18 @@ stages:
               terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
               terraform apply -auto-approve "$(Build.SourcesDirectory)/tfplan-download/tfplan/tfplan"
             displayName: Terraform Apply (Exact plan)
+  
+  - stage: Destroy
+    displayName: 'Terraform Destroy'
+    dependsOn: Apply
+    condition: and(succeeded(), eq('${{ parameters.runDestroy }}', true))
+    jobs:
+    - job: Destroy
+      displayName: 'Terraform Destroy Job'
+      steps:
+        - checkout: self
+        - script: |
+            chmod +x $(SCRIPTS)/destroy.sh
+            terraform init -backend-config="environments/$(ENV)/backend.tf" -reconfigure
+            $(SCRIPTS)/destroy.sh $(ENV)
+          displayName: 'Terraform Destroy'
