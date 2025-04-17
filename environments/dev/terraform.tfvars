@@ -3,7 +3,7 @@ location            = "centralindia"
 resource_group_name = "dev-governance-rg"
 required_tags       = ["Environment", "Owner"]
 subscription_id     = "7e43e805-0130-426e-935b-5380e24fa05b"
-address_space = ["10.0.0.0/16"]
+address_space       = ["10.0.0.0/16"]
 
 subnets = [
   {
@@ -16,9 +16,9 @@ subnets = [
   }
 ]
 
-environment         = "dev"
-owner               = "udeek"
-node_count          = 2
-vm_size             = "Standard_D2ps_v6"
+environment = "dev"
+owner       = "udeek"
+node_count  = 2
+vm_size     = "Standard_D2ps_v6"
 
 
