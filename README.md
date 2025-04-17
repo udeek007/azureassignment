@@ -36,7 +36,7 @@ cd ../ && ./scripts/generate-backend.sh dev
 ```
 
 ### 3. Open Azure Devops to run pipline
-1. Login to (Azure DevOps Portal)[https://dev.azure.com/udktest/azure_assignment]
+1. Login to [Azure DevOps Portal(https://dev.azure.com/udktest/azure_assignment)
 2. Inside Pipeline you will get udeek007.azureassignment pipeline
 3. Run Pipeline select apply option to apply and destroy option for destroy
 4. After validation stage you need to review and approve for respective stages
